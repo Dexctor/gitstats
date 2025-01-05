@@ -119,7 +119,16 @@ export default function UserComparison() {
   const calculateDifference = (value1: number, value2: number) => {
     if (isNaN(value1) || isNaN(value2)) return 0;
     if (value1 === 0 && value2 === 0) return 0;
-    return ((value2 - value1) / Math.max(value1, 1)) * 100;
+    
+    // Si l'une des valeurs est 0, limiter le pourcentage maximum
+    if (value1 === 0) return 1000; // Cap à 1000%
+    
+    const diff = ((value2 - value1) / value1) * 100;
+    // Limiter les différences extrêmes
+    if (diff > 1000) return 1000;
+    if (diff < -1000) return -1000;
+    
+    return diff;
   };
 
   // Fonction pour rendre l'indicateur de comparaison
@@ -348,7 +357,12 @@ export default function UserComparison() {
                           diff > 0 ? 'text-green-500' : 'text-red-500'
                         }`}>
                           {diff > 0 ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
-                          {Math.abs(diff).toFixed(1)}% difference
+                          {Math.abs(diff) >= 1000 
+                            ? '1000+' 
+                            : Math.abs(diff) < 1 
+                              ? '<1'
+                              : Math.abs(diff).toFixed(0)
+                          }% difference
                         </span>
                       )}
                     </div>
@@ -478,32 +492,23 @@ export default function UserComparison() {
     if (value1 === value2) return "Equal";
     if (value1 === 0 && value2 === 0) return "Equal";
     
-    // Si l'une des valeurs est 0, utiliser une approche différente
-    if (value1 === 0) {
-      return `${formatMetricValue(value2)} total`;
-    }
-    if (value2 === 0) {
-      return `${formatMetricValue(value1)} total`;
-    }
+    // Si l'une des valeurs est 0
+    if (value1 === 0) return "N/A → " + formatMetricValue(value2);
+    if (value2 === 0) return formatMetricValue(value1) + " → N/A";
 
     const ratio = value2 / value1;
     
-    // Pour des différences très importantes
-    if (ratio > 100) {
-      return `${Math.round(ratio)}× more`;
-    }
-    if (ratio < 0.01) {
-      return `${Math.round(1/ratio)}× less`;
-    }
-
-    // Pour des différences modérées
+    // Simplifier l'affichage des différences
+    if (ratio > 10) return ">10× more";
+    if (ratio < 0.1) return ">10× less";
+    
+    if (ratio > 2) return `${Math.round(ratio)}× more`;
+    if (ratio < 0.5) return `${Math.round(1/ratio)}× less`;
+    
+    // Pour des différences plus modérées
     const percentDiff = ((value2 - value1) / value1) * 100;
-    if (Math.abs(percentDiff) > 100) {
-      const multiplier = Math.round(Math.abs(percentDiff) / 100);
-      return `${multiplier}× ${percentDiff > 0 ? 'more' : 'less'}`;
-    }
-
-    // Pour des différences plus petites
+    if (Math.abs(percentDiff) < 1) return "Similar";
+    
     return `${Math.abs(percentDiff).toFixed(0)}% ${percentDiff > 0 ? 'more' : 'less'}`;
   }
 

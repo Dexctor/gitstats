@@ -5,10 +5,8 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { searchGithubUser } from "@/lib/github";
 import UserProfile from "@/components/UserProfile";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import GitHubStats from "@/components/GitHubStats";
-import TrendAnalysis from "@/components/TrendAnalysis";
-import UserComparison from "@/components/UserComparison";
+import { notFound } from 'next/navigation';
+
 
 interface UserData {
   // Add appropriate types based on your GitHub API response
@@ -22,6 +20,14 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (status === 'loading') {
+    return <LoadingSpinner message="Checking authentication..." />;
+  }
+
+  if (!session) {
+    notFound();
+  }
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -46,22 +52,6 @@ export default function ProfilePage() {
       loadUserData();
     }
   }, [session]);
-
-  // Show loading while checking authentication
-  if (status === 'loading') {
-    return <LoadingSpinner message="Checking authentication..." />;
-  }
-
-  // Show login message if not authenticated
-  if (!session) {
-    return (
-      <div className="min-h-screen pt-24 sm:pt-28 px-4 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please login to view your profile</h1>
-        </div>
-      </div>
-    );
-  }
 
   // Show loading spinner while fetching data
   if (loading) {

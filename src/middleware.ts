@@ -4,26 +4,18 @@ import { NextResponse } from 'next/server';
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
-    const token = req.nextauth.token;
 
-    // Handle API routes
-    if (pathname.startsWith('/api/github')) {
-      if (!token?.accessToken) {
-        return new NextResponse(
-          JSON.stringify({ error: 'Authentication required' }),
-          { 
-            status: 401, 
-            headers: { 'content-type': 'application/json' }
-          }
-        );
-      }
+    // Rediriger /profiles vers /profile
+    if (pathname === '/profiles') {
+      return NextResponse.redirect(new URL('/profile', req.url));
     }
 
+    // Pour toutes les autres routes non définies, laisser Next.js gérer avec not-found.tsx
     return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token }) => Boolean(token),
     },
   }
 );
@@ -33,5 +25,6 @@ export const config = {
     '/api/github/:path*',
     '/dashboard/:path*',
     '/profile/:path*',
+    '/profiles',
   ],
 }; 

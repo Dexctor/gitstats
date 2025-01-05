@@ -5,6 +5,10 @@ if (!process.env.GITHUB_ID || !process.env.GITHUB_SECRET) {
   throw new Error('Missing GitHub OAuth credentials');
 }
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('Missing NEXTAUTH_SECRET');
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
@@ -17,15 +21,24 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 heures
+  },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
+    async jwt({ token, account, user }) {
+      if (account && user) {
+        token.accessToken = account.access_token ?? '';
+        token.userId = user.id ?? '';
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
+      if (session.user) {
+        session.user.id = token.userId as string;
+        session.accessToken = token.accessToken as string;
+      }
       return session;
     },
   },
@@ -33,4 +46,5 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/error',
   },
+  debug: false,
 }; 

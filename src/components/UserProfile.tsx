@@ -85,7 +85,7 @@ export default function UserProfile({ userData }: UserProfileProps) {
 
   // Calculer les vraies statistiques avec dépendance sur userData
   const stats = useMemo(() => {
-    console.log('Calculating stats for:', userData?.user?.login);
+   
     if (!userData?.repos || !userData?.events) return defaultStats;
     
     const calculatedStats = calculateGitHubStats(userData.repos, userData.events);
@@ -229,8 +229,7 @@ export default function UserProfile({ userData }: UserProfileProps) {
   };
 
   useEffect(() => {
-    console.log('userData changed:', userData);
-    console.log('calculated stats:', stats);
+   
   }, [userData, stats]);
 
   return (

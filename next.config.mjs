@@ -5,9 +5,23 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
+        port: '',
         pathname: '/**',
       },
     ],
+  },
+  experimental: {
+    strictNextHead: true,
+  },
+  async rewrites() {
+    return {
+      fallback: [
+        {
+          source: '/:path*',
+          destination: '/not-found',
+        },
+      ],
+    }
   },
 };
 
