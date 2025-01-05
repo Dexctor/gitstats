@@ -7,12 +7,9 @@ import { searchGithubUser } from "@/lib/github";
 import UserProfile from "@/components/UserProfile";
 import { notFound } from 'next/navigation';
 
-
 interface UserData {
-  // Add appropriate types based on your GitHub API response
   login: string;
   name: string;
-  // ... other fields
 }
 
 export default function ProfilePage() {
@@ -20,14 +17,6 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (status === 'loading') {
-    return <LoadingSpinner message="Checking authentication..." />;
-  }
-
-  if (!session) {
-    notFound();
-  }
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -37,7 +26,6 @@ export default function ProfilePage() {
       setError(null);
       
       try {
-        // Assuming searchGithubUser only needs the username
         const data = await searchGithubUser(session.user.name);
         setUserData(data);
       } catch (error) {
@@ -48,17 +36,22 @@ export default function ProfilePage() {
       }
     };
 
-    if (session) {
-      loadUserData();
-    }
+    loadUserData();
   }, [session]);
 
-  // Show loading spinner while fetching data
+  // Gérer les états après le useEffect
+  if (status === 'loading') {
+    return <LoadingSpinner message="Checking authentication..." />;
+  }
+
+  if (!session) {
+    notFound();
+  }
+
   if (loading) {
     return <LoadingSpinner message="Loading profile data..." />;
   }
 
-  // Show error message if there was an error
   if (error) {
     return (
       <div className="min-h-screen pt-24 sm:pt-28 px-4 flex items-center justify-center">
@@ -91,7 +84,6 @@ export default function ProfilePage() {
   );
 }
 
-// Separate loading spinner component
 const LoadingSpinner = ({ message }: { message: string }) => (
   <div className="min-h-screen pt-24 sm:pt-28 px-4 flex items-center justify-center">
     <div className="relative">
