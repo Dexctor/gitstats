@@ -81,6 +81,12 @@ function ClientHeader() {
       animate={{ y: 0 }}
       className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 fixed w-full z-50"
     >
+      <script
+  defer
+  data-website-id="677be3c11fec5a460bac3192"
+  data-domain="antoine-dewas.vercel.app"
+  src="https://datafa.st/js/script.js">
+</script>
       <div className="container mx-auto px-3 sm:px-4 lg:px-8 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           <Logo />
