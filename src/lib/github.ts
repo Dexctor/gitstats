@@ -24,7 +24,9 @@ const memoryCache = new Map();
 export const searchGithubUser = cache(async (username: string) => {
   try {
     const octokit = createOctokit();
-    const cacheKey = `user:${username}`;
+    // Encoder le nom d'utilisateur pour gérer les caractères spéciaux
+    const encodedUsername = encodeURIComponent(username);
+    const cacheKey = `user:${encodedUsername}`;
 
     // Check cache first
     const cached = memoryCache.get(cacheKey);
@@ -34,9 +36,9 @@ export const searchGithubUser = cache(async (username: string) => {
 
     // Fetch user data and repos in parallel
     const [user, repos, events] = await Promise.all([
-      octokit.users.getByUsername({ username }),
-      octokit.repos.listForUser({ username, per_page: 100 }),
-      octokit.activity.listPublicEventsForUser({ username, per_page: 10 })
+      octokit.users.getByUsername({ username: encodedUsername }),
+      octokit.repos.listForUser({ username: encodedUsername, per_page: 100 }),
+      octokit.activity.listPublicEventsForUser({ username: encodedUsername, per_page: 10 })
     ]);
 
     const data = {

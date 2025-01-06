@@ -17,6 +17,8 @@ export async function GET(
       );
     }
 
+    const encodedUsername = encodeURIComponent(params.username);
+    
     const octokit = new Octokit({
       auth: token,
       headers: {
@@ -26,10 +28,10 @@ export async function GET(
 
     const [user, repos] = await Promise.all([
       octokit.users.getByUsername({
-        username: params.username,
+        username: encodedUsername,
       }),
       octokit.repos.listForUser({
-        username: params.username,
+        username: encodedUsername,
         per_page: 100,
       }),
     ]);
